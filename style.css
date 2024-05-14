@@ -1,8 +1,18 @@
 .container{
-  display:inline-grid;
+  display: inline-grid;
 }
+.mouse{
+  background-image: url("https://cdn.pixabay.com/photo/2014/04/02/10/24/mouse-303746_1280.png");
+  image-rotation: 90;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: "blue"
+  }
 
 
 .cell{
-  background-color: grey:
+  border-style: solid;
+  border-width: 1px;
+  border-color: gray;
 }
+
