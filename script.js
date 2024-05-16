@@ -32,6 +32,7 @@ class Grid{
 }
 class Cell{
 state="wall";
+mouse=false;
 constructor(x, y){
 	this.position=[x, y];
   
@@ -66,23 +67,44 @@ constructor(x, y){
 
 class Mouse extends Cell{
 rotation=0;
+dead=true;
+html=document.querySelector(".mouse");
 	constructor(){
   super();
-  this.state="mouse";
   this.position=[grid.height-1, Math.floor((grid.width-1)/2)];
-  console.log(this.position)
-  grid.data[this.position[0]][this.position[1]]=this;
+  let position = this.position;
+  this.html.id=`${position[0]};${position[1]}`;
+  document.getElementById(`${position[0]};${position[1]}`).appendChild(this.html);
+  grid.data[this.position[0]][this.position[1]].mouse=true;
   
-  console.log(grid.data[9][4])
-  document.getElementById(`${this.position[0]};${this.position[1]}`).classList.add("mouse");
+  //console.log(grid.data[9][4])
   }
-  
+  rotate(deg){
+  	this.html.style.transform=`rotate(${deg}deg)`;
+  }
+  moveHTML(dy, dx){
+  	let x = this.position[0]
+    let y = this.position[1];
+    
+    if (x+dx>=grid.width-1){
+    	dx=0;
+    }
+    if (y+dy>=grid.height-1){
+    	dy=0;
+    }
+    document.getElementById(`${x+dx};${y+dy}`).appendChild(this.html)
+    
+   // .appendChild(this.html);
+    
+  }
 }
 
 
 	var grid=new Grid(10,10);
   initHTML()
   var mouse=new Mouse();
+  mouse.moveHTML(25, 0)
+  grid.data[9][4].changeState("green")
 }
 
 main();
