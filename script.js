@@ -1,4 +1,4 @@
-function main(){
+
 function initHTML(width, height){
 	var container=document.querySelector(".container");
   container.style["grid-template-rows"]=`repeat(${height}, 50px`;
@@ -27,7 +27,26 @@ class Grid{
       }
     }
     this.data=data;
-    initHTML(width, height);
+    createMouse();
+    update
+  }
+  createMouse(x=this.height-1,y=Math.floor((this.width-1)/2)){
+  	this.data[x][y]=new Mouse([x,y])
+  }
+  updateDisplay(){
+  var color;
+  	for (var i=0; i<this.height; i++){
+		for (var o=0; o<this.width;o++){
+      switch (this.data[i][o]){
+      case ("wall"):
+      color="black";
+      case ("red"):
+     color="red";
+     default:
+     break
+      }
+      }
+    }
   }
 }
 class Cell{
@@ -35,12 +54,10 @@ state="wall";
 mouse=false;
 constructor(x, y){
 	this.position=[x, y];
-  
 }
 	changeState(state){
-  var y=this.position[0];
-  var x=this.position[1];
-  
+  let y=this.position[0];
+  let x=this.position[1];
   	switch (state){
  	case "wall": 
   this.state="wall"
@@ -66,45 +83,52 @@ constructor(x, y){
 }
 
 class Mouse extends Cell{
-rotation=0;
-dead=true;
+rotation=180;
 html=document.querySelector(".mouse");
-	constructor(){
+	constructor(startingPos){
   super();
-  this.position=[grid.height-1, Math.floor((grid.width-1)/2)];
+  this.mouse=true;
+  this.position=startingPos //[y, x]
   let position = this.position;
-  this.html.id=`${position[0]};${position[1]}`;
+  this.html.id=`${position[0]};${position[1]}`; //[y,x]
   document.getElementById(`${position[0]};${position[1]}`).appendChild(this.html);
-  grid.data[this.position[0]][this.position[1]].mouse=true;
-  
-  //console.log(grid.data[9][4])
+ 
+  }
+  checkCells(){
+    //console.log(this.position[0]+degreeTranslator[this.rotation]);
+    console.log(grid.data[this.position[1]+degreeTranslator[this.rotation/2]][this.position[0]+degreeTranslator[this.rotation]]);
+  }
+  move(dx, dy){
+  	let y = this.position[0]
+    let x = this.position[1];
+    
+    if (x+dx>=grid.width-1){
+    	dx=grid.width-x;
+    }
+    if (y+dy>=grid.height-1){
+    	dy=grid.height-y;
+    }
+    this.pos=[x,y]
+    this.moveHTML(dy, dx);
   }
   rotate(deg){
   	this.html.style.transform=`rotate(${deg}deg)`;
+    this.rotation=deg;
   }
   moveHTML(dy, dx){
-  	let x = this.position[0]
-    let y = this.position[1];
-    
-    if (x+dx>=grid.width-1){
-    	dx=0;
-    }
-    if (y+dy>=grid.height-1){
-    	dy=0;
-    }
-    document.getElementById(`${x+dx};${y+dy}`).appendChild(this.html)
+  var y=this.position[1];
+  var x=this.position[0];
+    document.getElementById(`${y};${x}`).appendChild(this.html)
     
    // .appendChild(this.html);
     
   }
 }
 
-
+function main(){
 	var grid=new Grid(10,10);
-  initHTML()
-  var mouse=new Mouse();
-  mouse.moveHTML(25, 0)
-  grid.data[9][4].changeState("green")
+  initHTML(10,10)
+  grid.data[4][8].changeState("green");
 }
 
 main();
