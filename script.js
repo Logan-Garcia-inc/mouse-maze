@@ -1,4 +1,42 @@
-
+function main(){
+function updateDisplay(){
+for (var x=0; x<grid.width;x++){
+for (var y=0; y<grid.height;y++){
+switch (grid.data[x][y].state){
+ 	case "wall": 
+  document.getElementById(`${x};${y}`).style.backgroundColor="black";
+  	break;
+ case "red":
+  document.getElementById(`${x};${y}`).style.backgroundColor="red";
+  break;
+  case "green":
+  document.getElementById(`${x};${y}`).style.backgroundColor="green";
+  break;
+  case "path":
+  document.getElementById(`${x};${y}`).style.backgroundColor="gray";
+  break;
+  
+    }
+    }
+}
+}
+class GameLoop{
+	async start(){
+  	this.paused=false;
+    var mouse=this.mouse
+    while (this.paused){
+    	mouse.checkCells();
+      updateDisplay();
+    }
+  }
+  stop(){
+  this.paused=true;
+  }
+  
+	constructor(grid, mouse){
+  	this.paused=true;
+  }
+} 
 function initHTML(width, height){
 	var container=document.querySelector(".container");
   container.style["grid-template-rows"]=`repeat(${height}, 50px`;
@@ -7,7 +45,7 @@ function initHTML(width, height){
   for (var o=0; o<width; o++){
   	var cell=document.createElement("div");
     cell.classList.add("cell");
-    cell.id=`${i};${o}`;
+    cell.id=`${o};${i}`;
     cell.style.backgroundColor="black";
     container.appendChild(cell);
     }
@@ -20,115 +58,99 @@ class Grid{
     this.height=height;
     var data=[];
     
-    for (var i=0; i<height; i++){
+    for (var i=0; i<width; i++){
     	data[i]=[];
-			for (var o=0; o<width;o++){
+			for (var o=0; o<height;o++){
       data[i][o]=new Cell(i,o);
       }
     }
     this.data=data;
-    createMouse();
-    update
-  }
-  createMouse(x=this.height-1,y=Math.floor((this.width-1)/2)){
-  	this.data[x][y]=new Mouse([x,y])
-  }
-  updateDisplay(){
-  var color;
-  	for (var i=0; i<this.height; i++){
-		for (var o=0; o<this.width;o++){
-      switch (this.data[i][o]){
-      case ("wall"):
-      color="black";
-      case ("red"):
-     color="red";
-     default:
-     break
-      }
-      }
-    }
   }
 }
 class Cell{
-state="wall";
-mouse=false;
+state;
+position;
+
 constructor(x, y){
 	this.position=[x, y];
+  this.state="wall";
 }
-	changeState(state){
-  let y=this.position[0];
-  let x=this.position[1];
-  	switch (state){
- 	case "wall": 
-  this.state="wall"
-  document.getElementById(`#${x};${y}`).style.backgroundColor="black";
-  	break;
- case "red":
- 	this.state="red";
-  document.getElementById(`${x};${y}`).style.backgroundColor="red";
-  break;
-  case "green":
-  this.state="green";
-  document.getElementById(`${x};${y}`).style.backgroundColor="green";
-  break;
-  case "path":
-  this.state="path";
-  document.getElementById(`${x};${y}`).style.backgroundColor="gray";
-  break;
-  default:
-  return false;
-  
-    }
+
+setState=(state)=>{
+		this.state=state;
+    updateDisplay();
+    return true
   }
 }
 
 class Mouse extends Cell{
 rotation=180;
 html=document.querySelector(".mouse");
-	constructor(startingPos){
+	constructor(){
   super();
-  this.mouse=true;
-  this.position=startingPos //[y, x]
+  this.position=[ Math.floor((grid.width-1)/2),grid.height-1]; //[y, x]
   let position = this.position;
   this.html.id=`${position[0]};${position[1]}`; //[y,x]
+  this.html.style.transform=`rotate(${this.rotation}deg)`;
   document.getElementById(`${position[0]};${position[1]}`).appendChild(this.html);
+  grid.data[this.position[0]][this.position[1]]=this;
  
   }
   checkCells(){
-    //console.log(this.position[0]+degreeTranslator[this.rotation]);
-    console.log(grid.data[this.position[1]+degreeTranslator[this.rotation/2]][this.position[0]+degreeTranslator[this.rotation]]);
+  	let degreeTranslator=()=>{
+    	return {
+    	180: [1, 0],
+      90: [0,1],
+      270: [0,-1],
+      0: [-1,0]
+    }[this.rotation]}
+    let checkedCell= grid.data[this.position[0]+degreeTranslator()[0]][degreeTranslator()[1]+this.position[1]];
+    checkedCell.setState("green")
+    updateDisplay()
   }
   move(dx, dy){
-  	let y = this.position[0]
-    let x = this.position[1];
+  	let x = this.position[0]
+    let y = this.position[1];
     
-    if (x+dx>=grid.width-1){
-    	dx=grid.width-x;
+    if (x+dx>=grid.width||x+dx<0){
+    	dx=0;
     }
-    if (y+dy>=grid.height-1){
-    	dy=grid.height-y;
+    if (y+dy>=grid.height||y+dy<0){
+    	dy=0;
     }
-    this.pos=[x,y]
-    this.moveHTML(dy, dx);
+    this.position[0]=x+dx
+    this.position[1]=y+dy
+    
+    this.moveHTML(dx, dy);
   }
   rotate(deg){
   	this.html.style.transform=`rotate(${deg}deg)`;
     this.rotation=deg;
   }
-  moveHTML(dy, dx){
+  moveHTML(dx, dy){
   var y=this.position[1];
   var x=this.position[0];
-    document.getElementById(`${y};${x}`).appendChild(this.html)
+  console.log(`${x};${y}`)
+    document.getElementById(`${x};${y}`).appendChild(this.html)
     
    // .appendChild(this.html);
     
   }
 }
 
-function main(){
+
 	var grid=new Grid(10,10);
   initHTML(10,10)
-  grid.data[4][8].changeState("green");
+  var mouse=new Mouse();
+  var gameLoop=new GameLoop(grid, mouse)
+  mouse.rotate(0)
+  document.querySelector(".continue").addEventListener("click",()=>{
+    
+  	mouse.checkCells()
+    mouse.move(-1,0)
+    console.log(mouse.position)
+  })
+ //document.getElementById(`5;9`).style.backgroundColor="blue"
 }
 
 main();
