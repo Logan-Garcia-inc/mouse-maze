@@ -32,7 +32,6 @@ class GameLoop{
   stop(){
   this.paused=true;
   }
-  
 	constructor(grid, mouse){
   	this.paused=true;
   }
@@ -146,19 +145,15 @@ html=document.querySelector(".mouse");
   var y=this.position[1];
   var x=this.position[0];
     document.getElementById(`${x};${y}`).appendChild(this.html)
-    
    // .appendChild(this.html);
     
   }
 }
-
-
 	var grid=new Grid(10,10);
   initHTML(10,10)
   var mouse=new Mouse();
   var gameLoop=new GameLoop(grid, mouse)
-  document.querySelector(".continue").addEventListener("click",()=>{
-    
+  document.querySelector(".continue").addEventListener("click",()=>{   
   	mouse.checkCells()
     console.log(mouse.position)
   })
