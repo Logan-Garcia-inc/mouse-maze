@@ -43,7 +43,15 @@ function initHTML(width, height){
   container.style["grid-template-columns"]=`repeat(${width}, 50px`;
   for (var i=0; i<height; i++){
   for (var o=0; o<width; o++){
-  	var cell=document.createElement("div");
+ 
+  	let cell=document.createElement("div");
+ 
+    cell.addEventListener("click",(e)=>{
+    let x=e.target.id.split(";");
+    let y=Number(x[1]);
+    x=Number(x[0]);
+    	grid.data[x][y].setState("path");
+    })
     cell.classList.add("cell");
     cell.id=`${o};${i}`;
     cell.style.backgroundColor="black";
@@ -99,13 +107,19 @@ html=document.querySelector(".mouse");
   checkCells(){
   	let degreeTranslator=()=>{
     	return {
-    	180: [1, 0],
-      90: [0,1],
-      270: [0,-1],
-      0: [-1,0]
+    	180: [0, 1],
+      90: [1,0],
+      270: [1,0],
+      0: [0,-1]
     }[this.rotation]}
+    this.rotate()
     let checkedCell= grid.data[this.position[0]+degreeTranslator()[0]][degreeTranslator()[1]+this.position[1]];
-    checkedCell.setState("green")
+    while(checkedCell.state=="wall"){
+    this.rotate(-90)
+    checkedCell= grid.data[this.position[0]+degreeTranslator()[0]][degreeTranslator()[1]+this.position[1]];
+    
+    }
+    	this.move(degreeTranslator())
     updateDisplay()
   }
   move(dx, dy){
@@ -123,14 +137,14 @@ html=document.querySelector(".mouse");
     
     this.moveHTML(dx, dy);
   }
-  rotate(deg){
-  	this.html.style.transform=`rotate(${deg}deg)`;
-    this.rotation=deg;
+  rotate(deg=90){
+  this.rotation+=deg;
+  	this.html.style.transform=`rotate(${this.rotation}deg)`;
+    
   }
   moveHTML(dx, dy){
   var y=this.position[1];
   var x=this.position[0];
-  console.log(`${x};${y}`)
     document.getElementById(`${x};${y}`).appendChild(this.html)
     
    // .appendChild(this.html);
@@ -143,11 +157,9 @@ html=document.querySelector(".mouse");
   initHTML(10,10)
   var mouse=new Mouse();
   var gameLoop=new GameLoop(grid, mouse)
-  mouse.rotate(0)
   document.querySelector(".continue").addEventListener("click",()=>{
     
   	mouse.checkCells()
-    mouse.move(-1,0)
     console.log(mouse.position)
   })
  //document.getElementById(`5;9`).style.backgroundColor="blue"
