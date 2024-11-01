@@ -118,7 +118,7 @@ html=document.querySelector(".mouse");
     checkedCell= grid.data[this.position[0]+degreeTranslator()[0]][degreeTranslator()[1]+this.position[1]];
     
     }
-    	this.move(degreeTranslator())
+    	this.move(...degreeTranslator())
     updateDisplay()
   }
   move(dx, dy){
@@ -133,7 +133,7 @@ html=document.querySelector(".mouse");
     }
     this.position[0]=x+dx
     this.position[1]=y+dy
-    
+        console.log(dx,dy)
     this.moveHTML(dx, dy);
   }
   rotate(deg=90){
@@ -144,7 +144,8 @@ html=document.querySelector(".mouse");
   moveHTML(dx, dy){
   var y=this.position[1];
   var x=this.position[0];
-    document.getElementById(`${x};${y}`).appendChild(this.html)
+    var asdf=document.getElementById(`${x};${y}`)
+    asdf.appendChild(this.html)
    // .appendChild(this.html);
     
   }
